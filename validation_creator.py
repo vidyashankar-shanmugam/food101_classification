@@ -1,6 +1,5 @@
 import random
 import os
-import pandas as pd
 
 def create_val_set():
     # Define the file path to your text file

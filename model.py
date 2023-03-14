@@ -1,5 +1,4 @@
-from datetime import time
-
+#from datetime import time
 import torchvision
 import torch
 from torch.optim.lr_scheduler import ReduceLROnPlateau
@@ -15,7 +14,7 @@ def model_init():
 def train_model(model, dataloaders, device, dataset_sizes):
 
     # Storing the time during the start of training
-    since = time.time()
+    #since = time.time()
     best_acc = 0.0
     early_stopping = EarlyStopping(patience=7, verbose=False, delta=0, trace_func=print)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
@@ -28,6 +27,7 @@ def train_model(model, dataloaders, device, dataset_sizes):
         print(f'Epoch {epoch}/{num_epochs - 1}')
         # Each epoch has a training and validation phase
         for phase in ['train', 'val']:
+            print(phase)
             if phase == 'train':
                 model.train()  # Set model to training mode
             else:
@@ -47,6 +47,7 @@ def train_model(model, dataloaders, device, dataset_sizes):
                 # forward
                 # track history if only in train
                 with torch.set_grad_enabled(phase == 'train'):
+                    print('training')
                     outputs = model(inputs)
                     _, preds = torch.max(outputs, 1) #Set predicted label value to 1
                     loss = criterion(outputs, labels)
@@ -58,7 +59,7 @@ def train_model(model, dataloaders, device, dataset_sizes):
 
             if phase == 'train':
                 scheduler.step(loss) #Update the learning rate
-
+            print("calculating epoch loss")
             epoch_loss = running_loss / dataset_sizes[phase]
             epoch_acc = running_corrects.double() / dataset_sizes[phase]
 
@@ -69,7 +70,6 @@ def train_model(model, dataloaders, device, dataset_sizes):
             # deep copy the model
             if phase == 'val' and epoch_acc > best_acc:
                 best_acc = epoch_acc
-                # best_model_wts = copy.deepcopy(model.state_dict())
             if phase == 'val':
                 # TODO: BEst to do early stopping based on loss and not accuracy I think
                 early_stopping(val_loss=epoch_loss, model=model)
@@ -78,7 +78,7 @@ def train_model(model, dataloaders, device, dataset_sizes):
                     break
 
     # Time elapsed
-    time_elapsed = time.time() - since
+    #time_elapsed = time.time() - since
 
     # load best model weights
     model.load_state_dict(early_stopping.best_model_wts)
