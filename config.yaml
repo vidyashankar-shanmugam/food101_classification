@@ -1,8 +1,0 @@
-scheduler : ReduceLROnPlateau(optimizer, 'min')
-lr : 0.001
-optimizer :
-          _target_ : torch.optim.Adam
-criterion :
-          _target_ : torch.nn.CrossEntropyLoss
-num_epochs : 1000
-patience : 500

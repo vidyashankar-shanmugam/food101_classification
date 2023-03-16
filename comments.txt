@@ -1,0 +1,50 @@
+food classification.py
+- config batch size, number of workers, data dir DONE
+- use instantiate for dataloader DONE
+
+
+dataloader.py
+
+dataloader_function
+- no point in line 19 and 20 DONE
+- ordinal encoder implementatin wrong DONE
+- move data transform creation indide custom dataset DONE
+- parameterize data transform DONE
+- once it works add augmentation DONE
+- move df creator to custom dataset DONE
+- create ordinal encoder once and save it to a file and keep loading from file DONE
+- parameterize dataloader creation + pin memory, prefetch DONE DONE
+- when implementing hydra change print statements to log
+- make plotting nicer DONE
+
+custom dataset.py
+- debug test in get item print path and the label DONE
+
+
+Comment every where
+- make more meaningfull variables names all around
+
+device.py
+- stop overcomplicating stuff you dont neeedd a function and a new file for one DONE
+
+model.py
+- add code that lets you fine tune only the last n layers - line 88 to 99 in my main.py but ask chatgpt as I feel what I wrote is maybe not the best way DONE
+- early sopping paramters patience should be in cfg DONE
+- choosing optimizer should be in cfg and also lr DONE
+- reduce lr on plateu paramteres should be in cfg - min patience, rate, factor DONE
+- if there are options for loss function also in cfg DONE
+- number of epochs def in cfg DONE
+- Avoid print statement like in line 50 keep them to a minimum DONE
+- Add tqdm as sometimes a single epoch might take a while
+- calculate additional metrics using torch metrics DONE
+- log to wandb DONE
+- from my training 130 to 133 DONE
+- 
+
+- add evaluvation script DONE
+from my main
+
+27 to 41 DONE
+54 DONE
+72-76 
+79-80

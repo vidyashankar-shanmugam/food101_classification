@@ -1,5 +1,22 @@
 import random
 import os
+import pandas as pd
+from sklearn.preprocessing import OrdinalEncoder
+
+def create_trainvaltest_df():
+
+    val_files = create_val_set()
+    ord_enc = OrdinalEncoder()
+    data_dir = os.path.join(os.getcwd(), 'images')
+    for phase in ['train', 'val', 'test']:
+        df = pd.read_csv(os.path.join('meta', phase + '.txt'))
+        if phase == 'train':
+            df = df[~df.isin(val_files).any(axis=1)]
+        df['label'] = df['path'].apply(lambda x: x.split('/')[0])
+        df['path'] = df['path'].apply(lambda x: os.path.join(data_dir, (x + '.jpg')))
+        df['ordinal_label'] = ord_enc.fit_transform(df['label'].values.reshape(-1, 1))
+        df.to_csv(os.path.join('meta', phase + '_df.csv'), index=False)
+
 
 def create_val_set():
     # Define the file path to your text file

@@ -3,25 +3,35 @@ import torchvision
 import torch
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from valloss_callback import EarlyStopping
+import numpy as np
+import math
 
 def model_init():
     model = torchvision.models.efficientnet_b0(pretrained=True)
     print(model.classifier[1])
     model.classifier[1] = torch.nn.Linear(in_features=1280, out_features=101, bias=True)
     print(model.classifier[1])
+    for name, child in model.named_children():
+        if name in ['classifier']:
+            print(name + ' is unfrozen')
+            for param in child.parameters():
+                param.requires_grad = True
+        else:
+            print(name + ' is frozen')
+            for param in child.parameters():
+                param.requires_grad = False
     return model
 
-def train_model(model, dataloaders, device, dataset_sizes):
+def train_model(model, dataloaders, device, dataset_sizes, log, cfg):
 
     # Storing the time during the start of training
     #since = time.time()
     best_acc = 0.0
-    early_stopping = EarlyStopping(patience=7, verbose=False, delta=0, trace_func=print)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-    scheduler = ReduceLROnPlateau(optimizer, 'min', patience=3, verbose=True)
+    early_stopping = EarlyStopping(patience= cfg.patience, verbose=False, delta= cfg.delta, trace_func=print)
+    optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr= cfg.lr, weight_decay= cfg.weight_decay, amsgrad= cfg.amsgrad)
+    scheduler = ReduceLROnPlateau(optimizer, mode ='min', factor = cfg.factor ,patience= cfg.patience, verbose=True)
     criterion = torch.nn.CrossEntropyLoss()
-    num_epochs = 1000
-
+    num_epochs = cfg.num_epochs
 
     for epoch in range(num_epochs):
         print(f'Epoch {epoch}/{num_epochs - 1}')
@@ -47,7 +57,7 @@ def train_model(model, dataloaders, device, dataset_sizes):
                 # forward
                 # track history if only in train
                 with torch.set_grad_enabled(phase == 'train'):
-                    print('training')
+                    log.debug('training')
                     outputs = model(inputs)
                     _, preds = torch.max(outputs, 1) #Set predicted label value to 1
                     loss = criterion(outputs, labels)
@@ -64,6 +74,12 @@ def train_model(model, dataloaders, device, dataset_sizes):
             epoch_acc = running_corrects.double() / dataset_sizes[phase]
 
             print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
+
+            # If the loss is nan or inf, stop training
+            if np.isfinite(running_loss) is False or math.isfinite(running_loss) is False \
+                    or math.isnan(running_loss) is True:
+                log.info("Loss is nan or inf, stopping training")
+                break
 
             # TODO: WANDB
 
