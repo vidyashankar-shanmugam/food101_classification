@@ -6,14 +6,20 @@ from torch.utils.data import Dataset
 
 class CustomDataset(Dataset):
 
-    def __init__(self, phase, log, transform_compose):
+    def __init__(self, phase, log, data_dir):
         self.phase = phase
-        df = pd.read_csv(os.path.join('meta', self.phase + '_df.csv'))
+        df = pd.read_csv(os.path.join(data_dir, 'meta', self.phase + '_df.csv'))
         self.image_paths = df['path'].values
         self.named_labels = df['label'].values
         self.labels = df['ordinal_label'].values
         self.log = log
-        self.transform = transforms.Compose(transform_compose)
+        self.transform = transforms.Compose([
+            transforms.RandAugment(2, 5),
+            lambda x: x.float() / 255,
+            transforms.RandomResizedCrop(224),
+            transforms.RandomHorizontalFlip(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ])
 
     def __getitem__(self, index):
         # Load image from file

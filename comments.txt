@@ -1,4 +1,21 @@
-food classification.py
+do not put pycache in git
+comments.txt should not be in git - dae people can see that when you make it public
+I would be suprised if your code works :) scheduler and transform compose in cfg wont work I think
+
+in food_classification.py
+- line 17 has an empty log.info
+- Tags for wandb I would recommend you remove it as I dont think youll be using tags
+- ideally split model creation and training to different files
+
+model.py
+- remove cfg.delta parameter from earlystopping i dont think youll use DONE
+- line 87 and 88 why are you calculating best accuray i think its not needed
+- I think it makes sense to calculate metrics also here for validation
+
+test.py
+- Are you sure about the method for calculating the test metrics i think they are wrong please check the documentation - I think you calculate metrics for every batch and keep overwriting the metrics
+- the data and target should be transfered non blocking
+- The f1score and confusion matrix should be moved back to cpu and should be converted to numpy before you can log to wandbfood classification.py
 - config batch size, number of workers, data dir DONE
 - use instantiate for dataloader DONE
 

@@ -1,16 +1,17 @@
+import os
 import torch
 from custom_data_loader import CustomDataset
 from torchvision import utils
 from display_image import imshow
 
-def data_loader(batch_size, num_workers, pin_memory, log,transform_compose):
-
-        with open('meta/classes.txt', 'r') as f:
+def data_loader(batch_size, num_workers, pin_memory, log, data_dir):
+        print(os.getcwd())
+        with open(os.path.join(data_dir,'meta/classes.txt'), 'r') as f:
             classes = f.readlines()
         # Create CustomDataset object for train and test splits
-        train_dataset = CustomDataset('train', log, transform_compose)
-        validation_dataset = CustomDataset('val', log, transform_compose)
-        test_dataset = CustomDataset('test', log, transform_compose)
+        train_dataset = CustomDataset('train', log, data_dir)
+        validation_dataset = CustomDataset('val', log, data_dir)
+        test_dataset = CustomDataset('test', log, data_dir)
 
         # Create DataLoader objects for train and test splits
         train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=pin_memory)

@@ -2,3 +2,7 @@
 images/
 
 .idea/
+
+__pycache__/
+
+outputs/

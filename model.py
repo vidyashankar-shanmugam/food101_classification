@@ -27,7 +27,7 @@ def train_model(model, dataloaders, device, dataset_sizes, log, cfg):
     # Storing the time during the start of training
     #since = time.time()
     best_acc = 0.0
-    early_stopping = EarlyStopping(patience= cfg.patience, verbose=False, delta= cfg.delta, trace_func=print)
+    early_stopping = EarlyStopping(patience= cfg.patience, verbose=False, trace_func=print)
     optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr= cfg.lr, weight_decay= cfg.weight_decay, amsgrad= cfg.amsgrad)
     scheduler = ReduceLROnPlateau(optimizer, mode ='min', factor = cfg.factor ,patience= cfg.patience, verbose=True)
     criterion = torch.nn.CrossEntropyLoss()
@@ -45,7 +45,6 @@ def train_model(model, dataloaders, device, dataset_sizes, log, cfg):
 
             running_loss = 0.0
             running_corrects = 0
-
             # Iterate over data.
             for inputs, labels in dataloaders[phase]:
                 inputs = inputs.to(device, non_blocking=True)
@@ -60,18 +59,22 @@ def train_model(model, dataloaders, device, dataset_sizes, log, cfg):
                     log.debug('training')
                     outputs = model(inputs)
                     _, preds = torch.max(outputs, 1) #Set predicted label value to 1
-                    loss = criterion(outputs, labels)
+                    loss = criterion(outputs, labels.long())
 
                     # backward + optimize only if in training phase
                     if phase == 'train':
                         loss.backward() #Back propagate the loss
                         optimizer.step() #Update the weights
+                        running_loss += loss.item()
+                        running_corrects += torch.sum(preds == labels).item()
 
             if phase == 'train':
                 scheduler.step(loss) #Update the learning rate
             print("calculating epoch loss")
+            print(running_loss)
+            print(running_corrects)
             epoch_loss = running_loss / dataset_sizes[phase]
-            epoch_acc = running_corrects.double() / dataset_sizes[phase]
+            epoch_acc = running_corrects / dataset_sizes[phase]
 
             print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
 
