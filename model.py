@@ -28,8 +28,8 @@ def train_model(model, dataloaders, device, dataset_sizes, log, cfg):
     #since = time.time()
     best_acc = 0.0
     early_stopping = EarlyStopping(patience= cfg.patience, verbose=False, trace_func=print)
-    optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr= cfg.lr, weight_decay= cfg.weight_decay, amsgrad= cfg.amsgrad)
-    scheduler = ReduceLROnPlateau(optimizer, mode ='min', factor = cfg.factor ,patience= cfg.patience, verbose=True)
+    optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr= cfg.lr, weight_decay= cfg.weight_decay)
+    scheduler = ReduceLROnPlateau(optimizer, mode ='min', factor = cfg.factor ,patience= cfg.patience_lr, verbose=True)
     criterion = torch.nn.CrossEntropyLoss()
     num_epochs = cfg.num_epochs
 
@@ -90,14 +90,10 @@ def train_model(model, dataloaders, device, dataset_sizes, log, cfg):
             if phase == 'val' and epoch_acc > best_acc:
                 best_acc = epoch_acc
             if phase == 'val':
-                # TODO: BEst to do early stopping based on loss and not accuracy I think
                 early_stopping(val_loss=epoch_loss, model=model)
                 if early_stopping.early_stop:
                     print("Early stopping")
                     break
-
-    # Time elapsed
-    #time_elapsed = time.time() - since
 
     # load best model weights
     model.load_state_dict(early_stopping.best_model_wts)

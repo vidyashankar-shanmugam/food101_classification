@@ -5,7 +5,6 @@ from torchvision import utils
 from display_image import imshow
 
 def data_loader(batch_size, num_workers, pin_memory, log, data_dir):
-        print(os.getcwd())
         with open(os.path.join(data_dir,'meta/classes.txt'), 'r') as f:
             classes = f.readlines()
         # Create CustomDataset object for train and test splits
@@ -14,7 +13,7 @@ def data_loader(batch_size, num_workers, pin_memory, log, data_dir):
         test_dataset = CustomDataset('test', log, data_dir)
 
         # Create DataLoader objects for train and test splits
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=pin_memory)
+        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=pin_memory, prefetch_factor=5)
         validation_loader = torch.utils.data.DataLoader(validation_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=pin_memory)
         test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=pin_memory)
 
