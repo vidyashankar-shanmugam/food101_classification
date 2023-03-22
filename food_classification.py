@@ -29,11 +29,14 @@ def myapp(cfg: DictConfig) -> None:
     wandb.log({"Hydra_working_directory": os.getcwd()}, commit=False)
     print("Im working")
     data_dir = hydra.utils.get_original_cwd()
-    #data_dir = os.path.join(os.getcwd(), 'images')
+    # Loading data via custom data loading module
     dataloaders, dataset_sizes = data_loader(cfg.batch_size, cfg.num_workers, cfg.pin_memory, log, data_dir)
     dev = device("cuda:0" if is_available() else "cpu")
+    # Initializing pre-trained Efficient net model
     model = model_init()
+    # Training the model
     model = train_model(model, dataloaders, dev, dataset_sizes, log, cfg)
+    # Evaluating the model
     f1, cm = test_model(model, dev, dataloaders['test'])
     wandb.log({"F1_score": f1, "Confusion_matrix": cm})
 
